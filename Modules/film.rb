@@ -54,10 +54,10 @@ class Film
   #   customers = SqlRunner.run(sql, values)
   #   return Customer.map_customers(customers)
   # end
-
-  def customers_count()
-      return customers().count
-  end
+  #
+  # def customers_count()
+  #     return customers().count
+  # end
 
   def self.map_films(film_data)
     return film_data.map {|film_hash| Film.new(film_hash)}
@@ -84,6 +84,23 @@ class Film
 
   end
 
+
+
+  def most_popular_screening
+      array = screenings()
+      number = 0
+      result = []
+      for each_screening in array
+        if each_screening.customers_count > number
+          number = each_screening.customers_count
+          result.clear
+          result.push(each_screening)
+        elsif each_screening.customers_count == number
+          result.push(each_screening)
+        end
+      end
+      return result
+  end
 
 
 

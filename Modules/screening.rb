@@ -51,6 +51,10 @@ class Screening
     return Customer.map_customers(customers)
   end
 
+  def customers_count()
+      return customers().count
+  end
+
   def self.map_screenings(screening_data)
     return screening_data.map {|screening_hash| Screening.new(screening_hash)}
   end

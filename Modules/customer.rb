@@ -82,7 +82,6 @@ class Customer
       return films().count
   end
 
-#much problems
   def buy_ticket(screening)
     if @funds >= Film.find_film_by_id(screening.film_id).price
 
