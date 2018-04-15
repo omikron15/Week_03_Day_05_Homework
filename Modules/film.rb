@@ -1,5 +1,6 @@
 require_relative("../db/sql_runner")
 require_relative("./customer.rb")
+require("pry-byebug")
 
 class Film
 
@@ -42,14 +43,17 @@ class Film
     SqlRunner.run(sql, values)
   end
 
-  def customers()
-    sql = "SELECT customers.* FROM customers
-    INNER JOIN tickets ON customers.id = tickets.customer_id
-    WHERE tickets.film_id = $1"
-    values = [@id]
-    customers = SqlRunner.run(sql, values)
-    return Customer.map_customers(customers)
-  end
+# Customers method is no longer required after the addition of
+# the screenings table and class?
+
+  # def customers()
+  #   sql = "SELECT customers.* FROM customers
+  #   INNER JOIN tickets ON customers.id = tickets.customer_id
+  #   WHERE tickets.film_id = $1"
+  #   values = [@id]
+  #   customers = SqlRunner.run(sql, values)
+  #   return Customer.map_customers(customers)
+  # end
 
   def customers_count()
       return customers().count
@@ -57,6 +61,30 @@ class Film
 
   def self.map_films(film_data)
     return film_data.map {|film_hash| Film.new(film_hash)}
-end
+ end
+
+ def screenings
+   sql = "SELECT screenings.* FROM screenings
+   WHERE film_id = $1"
+   values = [@id]
+   screenings = SqlRunner.run(sql, values)
+   return Screening.map_screenings(screenings)
+ end
+
+ def self.find_film_by_id(id)
+   sql = "SELECT * FROM films WHERE id = $1"
+   values = [id]
+   result = SqlRunner.run(sql, values)
+
+    if result.count == 0
+      return nil
+    else
+      return Film.new(result[0])
+    end
+
+  end
+
+
+
 
 end #End of class

@@ -44,33 +44,55 @@ class Customer
     SqlRunner.run(sql, values)
   end
 
+  def self.map_customers(customer_data)
+    return customer_data.map {|customer_hash| Customer.new(customer_hash)}
+  end
+
   def films()
-    sql = "SELECT films.* FROM films
-    INNER JOIN tickets ON films.id = tickets.film_id
-    WHERE tickets.customer_id = $1"
-    values = [@id]
-    films = SqlRunner.run(sql, values)
-    return Film.map_films(films)
+
+    films_array = []
+    all_screenings = screenings()
+    for each_screening in all_screenings
+      result = Film.find_film_by_id(each_screening.film_id)
+      films_array.push(result)
+    end
+
+    return films_array
+
+  end
+
+  def screenings
+      sql = "SELECT screenings.* FROM screenings
+      INNER JOIN tickets ON screenings.id = tickets.screening_id
+      WHERE tickets.customer_id = $1"
+      values = [@id]
+      screenings = SqlRunner.run(sql, values)
+      return Screening.map_screenings(screenings)
+  end
+
+  def tickets
+      sql = "SELECT * FROM tickets
+      WHERE customer_id = $1"
+      values = [@id]
+      tickets = SqlRunner.run(sql, values)
+      return Ticket.map_tickets(tickets)
   end
 
   def ticket_count()
       return films().count
   end
 
-  def self.map_customers(customer_data)
-    return customer_data.map {|customer_hash| Customer.new(customer_hash)}
-  end
+#much problems
+  def buy_ticket(screening)
+    if @funds >= Film.find_film_by_id(screening.film_id).price
 
-  def buy_ticket(film)
-    if @funds >= film.price
-
-      @funds -= film.price
+      @funds -= Film.find_film_by_id(screening.film_id).price
 
       update()
 
       Ticket.new({
-        "customer_id" => @id ,
-        "film_id" => film.id
+        "customer_id" => @id,
+        "screening_id" => screening.id
       }).save
     else
       return nil

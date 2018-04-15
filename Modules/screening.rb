@@ -1,4 +1,5 @@
 require_relative("../db/sql_runner")
+require_relative("./screening.rb")
 
 class Screening
 
@@ -39,6 +40,19 @@ class Screening
     sql = "UPDATE screenings SET (show_time, film_id) = ($1, $2) WHERE id = $3;"
     values = [@show_time, @film_id, @id]
     SqlRunner.run(sql, values)
+  end
+
+  def customers()
+    sql = "SELECT customers.* FROM customers
+    INNER JOIN tickets ON customers.id = tickets.customer_id
+    WHERE tickets.screening_id = $1"
+    values = [@id]
+    customers = SqlRunner.run(sql, values)
+    return Customer.map_customers(customers)
+  end
+
+  def self.map_screenings(screening_data)
+    return screening_data.map {|screening_hash| Screening.new(screening_hash)}
   end
 
 end #End of class

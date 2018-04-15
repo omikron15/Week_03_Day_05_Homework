@@ -1,4 +1,5 @@
 require_relative("../db/sql_runner")
+require_relative("./ticket.rb")
 
 class Ticket
 
@@ -39,6 +40,10 @@ class Ticket
     sql = "UPDATE tickets SET (customer_id, screening_id) = ($1, $2) WHERE id = $3;"
     values = [@customer_id, @screening_id, @id]
     SqlRunner.run(sql, values)
+  end
+
+  def self.map_tickets(ticket_data)
+    return ticket_data.map {|ticket_hash| Ticket.new(ticket_hash)}
   end
 
 end #End of class
